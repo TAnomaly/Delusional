@@ -4,6 +4,9 @@ import { useState, useRef, useEffect } from "react";
 import styles from "./page.module.css";
 import Link from "next/link";
 import VideoBackground from "@/components/VideoBackground";
+import { HeroLanding } from "@/components/HeroLanding";
+import { LandingNav } from "@/components/LandingNav";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 interface Message {
   id: number;
@@ -34,28 +37,6 @@ const ArrowRightIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M5 12h14" />
     <path d="m12 5 7 7-7 7" />
-  </svg>
-);
-
-const InstagramIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-  </svg>
-);
-
-const TwitterIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
-  </svg>
-);
-
-const GlobeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-    <path d="M2 12h20"/>
   </svg>
 );
 
@@ -151,53 +132,19 @@ export default function ChatPage() {
   const activeLabel = providerInfo ? PROVIDER_LABELS[providerInfo.activeProvider] : null;
   const isHeroMode = messages.length <= 1;
 
-  // Render hero landing if chat hasn't started
   if (isHeroMode) {
     return (
-      <>
+      <div className="h-screen w-full flex flex-col overflow-hidden relative bg-transparent">
+        <LandingNav />
         <VideoBackground />
-        <div className={styles.page}>
-          <div className={styles.heroContainer}>
-          <h1 className={`${styles.heroHeading} instrument`}>Built for the curious</h1>
-          
-          <div className={`${styles.inputWrapper} ${styles.hero}`}>
-            <div className={`${styles.inputBar} liquid-glass`}>
-              <input 
-                ref={inputRef as any}
-                type="text"
-                className={styles.input}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKey}
-                placeholder="Ask me anything..."
-                disabled={isTyping}
-              />
-              <button className={styles.sendBtn} onClick={send} disabled={!input.trim() || isTyping}>
-                <ArrowRightIcon />
-              </button>
-            </div>
-            
-            <p className={styles.heroSubtitle}>
-              {messages[0]?.text || "Initializing system..."}
-            </p>
-          </div>
-        </div>
-
-        <div className={styles.footer}>
-          <a href="#" className={`${styles.socialBtn} liquid-glass`} aria-label="Instagram"><InstagramIcon /></a>
-          <a href="#" className={`${styles.socialBtn} liquid-glass`} aria-label="Twitter"><TwitterIcon /></a>
-          <a href="#" className={`${styles.socialBtn} liquid-glass`} aria-label="Website"><GlobeIcon /></a>
-        </div>
+        <HeroLanding />
       </div>
-    </>
-  );
-}
+    );
+  }
 
-  // Render actual chat once interaction begins
   return (
-    <>
-      <VideoBackground />
-      <div className={styles.page}>
+    <DashboardLayout>
+      <div className="flex flex-col h-full w-full max-w-4xl mx-auto rounded-2xl bg-background border border-border shadow-sm overflow-hidden">
         <div className={styles.chatContainer}>
         <div className={styles.messages}>
           {messages.map(msg => (
@@ -249,6 +196,6 @@ export default function ChatPage() {
         </div>
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 }

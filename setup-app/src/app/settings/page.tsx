@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 type Provider = "gemini" | "claude" | "openai" | "zlm";
 
@@ -112,78 +113,80 @@ export default function SettingsPage() {
   if (loading) return <div className={`container ${styles.page}`}><p>Loading...</p></div>;
 
   return (
-    <div className={`container ${styles.page}`}>
-      <section className={styles.header}>
-        <p className={styles.label}>⚙ Settings</p>
-        <h1>AI <span>Providers</span></h1>
-        <p className={styles.desc}>Connect your AI API keys. Your keys are stored locally on this server — never sent anywhere except to the AI provider.</p>
-      </section>
+    <DashboardLayout>
+      <div className={`container ${styles.page}`}>
+        <section className={styles.header}>
+          <p className={styles.label}>⚙ Settings</p>
+          <h1>AI <span>Providers</span></h1>
+          <p className={styles.desc}>Connect your AI API keys. Your keys are stored locally on this server — never sent anywhere except to the AI provider.</p>
+        </section>
 
-      {message && <div className={styles.toast}>{message}</div>}
+        {message && <div className={styles.toast}>{message}</div>}
 
-      <div className={styles.providers}>
-        {PROVIDERS.map(p => (
-          <div key={p.id} className={`${styles.providerCard} ${activeProvider === p.id ? styles.providerActive : ""}`}>
-            <div className={styles.providerHeader}>
-              <div className={styles.providerInfo}>
-                <span className={styles.providerIcon} style={{ color: p.color }}>{p.icon}</span>
-                <div>
-                  <h3>{p.name}</h3>
-                  <p className={styles.providerDesc}>{p.desc}</p>
+        <div className={styles.providers}>
+          {PROVIDERS.map(p => (
+            <div key={p.id} className={`${styles.providerCard} ${activeProvider === p.id ? styles.providerActive : ""}`}>
+              <div className={styles.providerHeader}>
+                <div className={styles.providerInfo}>
+                  <span className={styles.providerIcon} style={{ color: p.color }}>{p.icon}</span>
+                  <div>
+                    <h3>{p.name}</h3>
+                    <p className={styles.providerDesc}>{p.desc}</p>
+                  </div>
+                </div>
+                <div className={styles.providerStatus}>
+                  {isConnected(p.id) ? (
+                    <span className={styles.connected}>● Connected</span>
+                  ) : (
+                    <span className={styles.disconnected}>○ Not connected</span>
+                  )}
                 </div>
               </div>
-              <div className={styles.providerStatus}>
-                {isConnected(p.id) ? (
-                  <span className={styles.connected}>● Connected</span>
+
+              {/* Key management */}
+              <div className={styles.keySection}>
+                {isConnected(p.id) && editingKey !== p.id ? (
+                  <div className={styles.keyRow}>
+                    <code className={styles.maskedKey}>{getMaskedKey(p.id)}</code>
+                    <div className={styles.keyActions}>
+                      <button className={styles.useBtn} onClick={() => setActive(p.id)} disabled={activeProvider === p.id}>
+                        {activeProvider === p.id ? "✓ Active" : "Use This"}
+                      </button>
+                      <button className={styles.editBtn} onClick={() => { setEditingKey(p.id); setKeyInput(""); }}>Edit</button>
+                      <button className={styles.removeBtn} onClick={() => removeKey(p.id)}>Remove</button>
+                    </div>
+                  </div>
+                ) : editingKey === p.id ? (
+                  <div className={styles.keyForm}>
+                    <input
+                      type="password"
+                      value={keyInput}
+                      onChange={e => setKeyInput(e.target.value)}
+                      placeholder={p.placeholder}
+                      autoFocus
+                    />
+                    <div className={styles.keyFormBtns}>
+                      <button onClick={() => saveKey(p.id)} disabled={saving || !keyInput.trim()}>
+                        {saving ? "Saving..." : "Save Key"}
+                      </button>
+                      <button className={styles.cancelBtn} onClick={() => { setEditingKey(null); setKeyInput(""); }}>Cancel</button>
+                    </div>
+                  </div>
                 ) : (
-                  <span className={styles.disconnected}>○ Not connected</span>
+                  <button className={styles.connectBtn} onClick={() => setEditingKey(p.id)} style={{ borderColor: p.color, color: p.color }}>
+                    + Connect {p.name}
+                  </button>
                 )}
               </div>
             </div>
+          ))}
+        </div>
 
-            {/* Key management */}
-            <div className={styles.keySection}>
-              {isConnected(p.id) && editingKey !== p.id ? (
-                <div className={styles.keyRow}>
-                  <code className={styles.maskedKey}>{getMaskedKey(p.id)}</code>
-                  <div className={styles.keyActions}>
-                    <button className={styles.useBtn} onClick={() => setActive(p.id)} disabled={activeProvider === p.id}>
-                      {activeProvider === p.id ? "✓ Active" : "Use This"}
-                    </button>
-                    <button className={styles.editBtn} onClick={() => { setEditingKey(p.id); setKeyInput(""); }}>Edit</button>
-                    <button className={styles.removeBtn} onClick={() => removeKey(p.id)}>Remove</button>
-                  </div>
-                </div>
-              ) : editingKey === p.id ? (
-                <div className={styles.keyForm}>
-                  <input
-                    type="password"
-                    value={keyInput}
-                    onChange={e => setKeyInput(e.target.value)}
-                    placeholder={p.placeholder}
-                    autoFocus
-                  />
-                  <div className={styles.keyFormBtns}>
-                    <button onClick={() => saveKey(p.id)} disabled={saving || !keyInput.trim()}>
-                      {saving ? "Saving..." : "Save Key"}
-                    </button>
-                    <button className={styles.cancelBtn} onClick={() => { setEditingKey(null); setKeyInput(""); }}>Cancel</button>
-                  </div>
-                </div>
-              ) : (
-                <button className={styles.connectBtn} onClick={() => setEditingKey(p.id)} style={{ borderColor: p.color, color: p.color }}>
-                  + Connect {p.name}
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
+        <section className={styles.infoBox}>
+          <h3>🔒 Security</h3>
+          <p>API keys are stored in a local <code>.ai-config.json</code> file on this server. They are never exposed to the browser — only the last 4 characters are shown. All AI requests are proxied through the server.</p>
+        </section>
       </div>
-
-      <section className={styles.infoBox}>
-        <h3>🔒 Security</h3>
-        <p>API keys are stored in a local <code>.ai-config.json</code> file on this server. They are never exposed to the browser — only the last 4 characters are shown. All AI requests are proxied through the server.</p>
-      </section>
-    </div>
+    </DashboardLayout>
   );
 }

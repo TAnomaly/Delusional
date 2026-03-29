@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import styles from "./page.module.css";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 type Source = "all" | "ai-chat" | "research" | "manual";
 
@@ -80,81 +82,105 @@ export default function NotesPage() {
     });
 
   return (
-    <div className={`container ${styles.page}`}>
-      <section className={styles.header}>
-        <div>
-          <p className={styles.label}>◈ Notes</p>
-          <h1>Saved <span>Knowledge</span></h1>
-          <p className={styles.desc}>AI sohbetlerinden, araştırmalardan ve manuel notlardan oluşan bilgi bankası.</p>
+    <DashboardLayout>
+      <div className={`container ${styles.page}`}>
+        <section className={styles.header}>
+          <div>
+            <p className={styles.label}>◈ Notes</p>
+            <h1>Saved <span>Knowledge</span></h1>
+            <p className={styles.desc}>AI sohbetlerinden, araştırmalardan ve manuel notlardan oluşan bilgi bankası.</p>
+          </div>
+          <button onClick={() => setShowCreate(true)}>+ New Note</button>
+        </section>
+
+        <div className={styles.toolbar}>
+          <div className={styles.filters}>
+            {(["all", "ai-chat", "research", "manual"] as Source[]).map(s => (
+              <button key={s}
+                className={`${styles.filterBtn} ${filter === s ? styles.active : ""}`}
+                onClick={() => setFilter(s)}
+              >{s === "all" ? "All" : `${SRC[s].icon} ${SRC[s].label}`}</button>
+            ))}
+          </div>
+          <input className={styles.search} placeholder="Search notes..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-        <button onClick={() => setShowCreate(true)}>+ New Note</button>
-      </section>
 
-      <div className={styles.toolbar}>
-        <div className={styles.filters}>
-          {(["all", "ai-chat", "research", "manual"] as Source[]).map(s => (
-            <button key={s}
-              className={`${styles.filterBtn} ${filter === s ? styles.active : ""}`}
-              onClick={() => setFilter(s)}
-            >{s === "all" ? "All" : `${SRC[s].icon} ${SRC[s].label}`}</button>
-          ))}
-        </div>
-        <input className={styles.search} placeholder="Search notes..." value={search} onChange={e => setSearch(e.target.value)} />
-      </div>
+        <motion.div layout className={styles.grid}>
+          <AnimatePresence mode="popLayout">
+            {filtered.map((note, idx) => (
+              <motion.article 
+                key={note.id} 
+                layout
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
+                transition={{ duration: 0.4, delay: idx * 0.03, type: "spring", bounce: 0.2 }}
+                className={`${styles.noteCard} group`}
+                style={{ position: 'relative', overflow: 'hidden' }}
+              >
+                {/* Premium sweeping shine effect on hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 translate-x-[-150%] group-hover:translate-x-[150%] ease-in-out mix-blend-overlay" />
+                
+                <div 
+                  className={styles.sourceTag} 
+                  style={{ color: SRC[note.source]?.color, borderColor: SRC[note.source]?.color }}
+                >
+                  {SRC[note.source]?.icon} {SRC[note.source]?.label}
+                </div>
+                <h3 className={styles.noteTitle} onClick={() => setExpanded(expanded === note.id ? null : note.id)} style={{ cursor: "pointer" }}>
+                  {note.title}
+                </h3>
+                <motion.div layout className={styles.noteContent}>
+                  {expanded === note.id || true ? renderMd(note.content) : null}
+                  {note.linkedTask && (
+                    <p style={{ marginTop: '1.5rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-orange)' }}>
+                      📌 Linked Task: {note.linkedTask}
+                    </p>
+                  )}
+                </motion.div>
+                <motion.div layout className={styles.noteFooter}>
+                  <span className={styles.date}>{fmt(note.timestamp)}</span>
+                  <div className={styles.actions}>
+                    <button className={styles.iconBtn} onClick={() => copy(note)} title="Copy">📋</button>
+                    <button className={`${styles.iconBtn} ${styles.delete}`} onClick={() => del(note.id)} title="Delete">🗑</button>
+                  </div>
+                </motion.div>
+              </motion.article>
+            ))}
+          </AnimatePresence>
+        </motion.div>
 
-      <div className={styles.grid}>
-        {filtered.map(note => (
-          <article key={note.id} className={styles.card}>
-            <div className={styles.cardBar} style={{ background: SRC[note.source]?.color }} />
-            <div className={styles.cardInner}>
-              <div className={styles.cardTop}>
-                <span className={styles.badge} style={{ color: SRC[note.source]?.color }}>{SRC[note.source]?.icon} {SRC[note.source]?.label}</span>
-                <span className={styles.time}>{fmt(note.timestamp)}</span>
+        {showCreate && (
+          <div className={styles.overlay} onClick={() => setShowCreate(false)}>
+            <div className={styles.modal} onClick={e => e.stopPropagation()}>
+              <h2>New Note</h2>
+              <div className={styles.field}>
+                <label>Source</label>
+                <div className={styles.srcPicker}>
+                  {(["manual", "ai-chat", "research"] as Source[]).map(s => (
+                    <button key={s} className={`${styles.srcBtn} ${source === s ? styles.srcActive : ""}`}
+                      style={source === s ? { borderColor: SRC[s].color, background: SRC[s].color + "12" } : {}}
+                      onClick={() => setSource(s)} type="button"
+                    >{SRC[s].icon} {SRC[s].label}</button>
+                  ))}
+                </div>
               </div>
-              <h3 className={styles.cardTitle} onClick={() => setExpanded(expanded === note.id ? null : note.id)}>{note.title}</h3>
-              <div className={`${styles.cardBody} ${expanded === note.id ? styles.bodyOpen : ""}`}>
-                {renderMd(note.content)}
+              <div className={styles.field}>
+                <label>Title</label>
+                <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Note title..." />
               </div>
-              {note.linkedTask && <div className={styles.linked}>📌 {note.linkedTask}</div>}
-              <div className={styles.cardActions}>
-                <button className={styles.smallBtn} onClick={() => copy(note)}>📋 Copy</button>
-                <button className={styles.smallBtn} onClick={() => del(note.id)} style={{ marginLeft: "auto" }}>🗑</button>
+              <div className={styles.field}>
+                <label>Content</label>
+                <textarea value={content} onChange={e => setContent(e.target.value)} rows={6} placeholder="Markdown content..." />
               </div>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      {showCreate && (
-        <div className={styles.overlay} onClick={() => setShowCreate(false)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <h2>New Note</h2>
-            <div className={styles.field}>
-              <label>Source</label>
-              <div className={styles.srcPicker}>
-                {(["manual", "ai-chat", "research"] as Source[]).map(s => (
-                  <button key={s} className={`${styles.srcBtn} ${source === s ? styles.srcActive : ""}`}
-                    style={source === s ? { borderColor: SRC[s].color, background: SRC[s].color + "12" } : {}}
-                    onClick={() => setSource(s)} type="button"
-                  >{SRC[s].icon} {SRC[s].label}</button>
-                ))}
+              <div className={styles.modalFoot}>
+                <button className={styles.ghost} onClick={() => setShowCreate(false)} type="button">Cancel</button>
+                <button onClick={create} type="button">Save</button>
               </div>
-            </div>
-            <div className={styles.field}>
-              <label>Title</label>
-              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Note title..." />
-            </div>
-            <div className={styles.field}>
-              <label>Content</label>
-              <textarea value={content} onChange={e => setContent(e.target.value)} rows={6} placeholder="Markdown content..." />
-            </div>
-            <div className={styles.modalFoot}>
-              <button className={styles.ghost} onClick={() => setShowCreate(false)} type="button">Cancel</button>
-              <button onClick={create} type="button">Save</button>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </DashboardLayout>
   );
 }

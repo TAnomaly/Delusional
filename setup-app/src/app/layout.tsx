@@ -19,29 +19,7 @@ const GlobeIcon = () => (
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <nav className={styles.navbar}>
-          <div className={`${styles.navInner} liquid-glass`}>
-            <div className={styles.leftGroup}>
-              <Link href="/" className={styles.brand}>
-                <GlobeIcon />
-                <span>delusional</span>
-              </Link>
-              <div className={styles.navLinks}>
-                <Link href="/" className={styles.navLink}>Chat</Link>
-                <Link href="/board" className={styles.navLink}>Board</Link>
-                <Link href="/notes" className={styles.navLink}>Notes</Link>
-              </div>
-            </div>
-            <div className={styles.rightActions}>
-              <button className={styles.textBtn}>Pro</button>
-              <Link href="/settings" className={`${styles.glassBtn} liquid-glass`}>
-                Settings
-              </Link>
-            </div>
-          </div>
-        </nav>
-
+      <body className="bg-background text-foreground font-body antialiased">
         <main className={styles.main}>
           {children}
         </main>

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import styles from "./page.module.css";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 interface Card {
   id: number;
@@ -32,6 +34,7 @@ const INITIAL_COLS: Column[] = [
 
 export default function BoardPage() {
   const [columns, setColumns] = useState<Column[]>(INITIAL_COLS);
+  const [activeTab, setActiveTab] = useState<string>("backlog");
   const [showAdd, setShowAdd] = useState<string | null>(null);
   const [newText, setNewText] = useState("");
   const [newTag, setNewTag] = useState("task");
@@ -76,73 +79,132 @@ export default function BoardPage() {
     ));
   };
 
+  const activeColIdx = columns.findIndex(c => c.id === activeTab);
+  const activeCol = columns[activeColIdx];
+
+  const getCardColorClass = (colId: string) => {
+    if (colId === "backlog") return styles.cardBacklog;
+    if (colId === "doing") return styles.cardDoing;
+    if (colId === "done") return styles.cardDone;
+    return "";
+  };
+
   return (
-    <div className={`container ${styles.page}`}>
-      <section className={styles.header}>
-        <div>
-          <p className={styles.label}>▦ Board</p>
-          <h1>Task <span>Board</span></h1>
-          <p className={styles.desc}>AI tarafından oluşturulan görevlerin burada. Kartları sürükle veya ok butonlarıyla taşı.</p>
-        </div>
-      </section>
-
-      <div className={styles.board}>
-        {columns.map((col, colIdx) => (
-          <div key={col.id} className={styles.col}>
-            <div className={styles.colHead}>
-              <span className={styles.colIcon}>{col.icon}</span>
-              <h2>{col.title}</h2>
-              <span className={styles.count}>{col.cards.length}</span>
-            </div>
-            <div className={styles.cards}>
-              {col.cards.map(card => (
-                <div key={card.id} className={styles.card}>
-                  <p className={styles.cardText}>{card.text}</p>
-                  <div className={styles.cardBottom}>
-                    <span className={styles.cardTag}>{card.tag}</span>
-                    <span className={styles.cardTime}>{card.createdAt}</span>
-                  </div>
-                  <div className={styles.cardActions}>
-                    {colIdx > 0 && (
-                      <button className={styles.moveBtn} onClick={() => moveCard(card.id, col.id, "left")}>←</button>
-                    )}
-                    {colIdx < columns.length - 1 && (
-                      <button className={styles.moveBtn} onClick={() => moveCard(card.id, col.id, "right")}>→</button>
-                    )}
-                    <button className={styles.delBtn} onClick={() => deleteCard(col.id, card.id)}>✕</button>
-                  </div>
-                </div>
-              ))}
-
-              {showAdd === col.id ? (
-                <div className={styles.addForm}>
-                  <textarea
-                    value={newText}
-                    onChange={e => setNewText(e.target.value)}
-                    placeholder="Görev açıklaması..."
-                    rows={2}
-                    autoFocus
-                  />
-                  <div className={styles.addFormRow}>
-                    <select value={newTag} onChange={e => setNewTag(e.target.value)}>
-                      <option value="task">task</option>
-                      <option value="research">research</option>
-                      <option value="project">project</option>
-                      <option value="idea">idea</option>
-                    </select>
-                    <div className={styles.addBtns}>
-                      <button className={styles.addConfirm} onClick={() => addCard(col.id)}>Add</button>
-                      <button className={styles.addCancel} onClick={() => { setShowAdd(null); setNewText(""); }}>✕</button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <button className={styles.addBtn} onClick={() => setShowAdd(col.id)}>+ Add card</button>
-              )}
-            </div>
+    <DashboardLayout>
+      <div className={`container ${styles.page}`}>
+        <section className={styles.header}>
+          <div>
+            <p className={styles.label}>▦ Workspace</p>
+            <h1>Task <span>Board</span></h1>
+            <p className={styles.desc}>AI tarafından oluşturulan görevlerin burada. Hedeflerine odaklan.</p>
           </div>
-        ))}
+        </section>
+
+        {/* Tab Navigation */}
+        <div className={styles.tabBar}>
+          {columns.map(col => (
+            <button
+              key={col.id}
+              className={`${styles.tabBtn} ${activeTab === col.id ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab(col.id)}
+            >
+              <span className={styles.tabIcon}>{col.icon}</span>
+              {col.title}
+              <span className={styles.tabCount}>{col.cards.length}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Active Tab Content (Grid Layout) */}
+        <div className={styles.activeBoardArea}>
+          {activeCol && (
+            <div className={styles.singleColumn}>
+              <motion.div layout className={styles.cardsGrid}>
+                <AnimatePresence mode="popLayout">
+                  {activeCol.cards.map((card, idx) => (
+                    <motion.div 
+                      key={card.id} 
+                      layout
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
+                      transition={{ duration: 0.3, delay: idx * 0.05, type: "spring", stiffness: 200, damping: 20 }}
+                      className={`${styles.card} ${getCardColorClass(activeCol.id)} group`}
+                      style={{ position: 'relative', overflow: 'hidden' }}
+                    >
+                      {/* Ambient Glare on Hover */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/50 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none mix-blend-overlay" />
+                      
+                      <p className={styles.cardText}>{card.text}</p>
+                      <div className={styles.cardBottom}>
+                        <span className={styles.cardTag}>{card.tag}</span>
+                        <span className={styles.cardTime}>{card.createdAt}</span>
+                      </div>
+                      <div className={styles.cardActions}>
+                        {activeColIdx > 0 && (
+                          <button className={styles.moveBtn} onClick={() => moveCard(card.id, activeCol.id, "left")}>
+                            ← Move to {columns[activeColIdx - 1].title}
+                          </button>
+                        )}
+                        {activeColIdx < columns.length - 1 && (
+                          <button className={styles.moveBtn} onClick={() => moveCard(card.id, activeCol.id, "right")}>
+                            Move to {columns[activeColIdx + 1].title} →
+                          </button>
+                        )}
+                        <button className={styles.delBtn} onClick={() => deleteCard(activeCol.id, card.id)}>✕</button>
+                      </div>
+                    </motion.div>
+                  ))}
+
+                  {/* Add Card Form inline with Grid */}
+                  {showAdd === activeCol.id ? (
+                    <motion.div 
+                      layout
+                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ type: "spring", bounce: 0.4 }}
+                      className={`${styles.card} ${styles.addFormCard}`}
+                    >
+                      <textarea
+                        value={newText}
+                        onChange={e => setNewText(e.target.value)}
+                        placeholder="Yeni görev..."
+                        rows={3}
+                        autoFocus
+                        className={styles.addTextarea}
+                      />
+                      <div className={styles.addFormRow}>
+                        <select className={styles.tagSelect} value={newTag} onChange={e => setNewTag(e.target.value)}>
+                          <option value="task">task</option>
+                          <option value="research">research</option>
+                          <option value="project">project</option>
+                          <option value="idea">idea</option>
+                        </select>
+                        <div className={styles.addBtns}>
+                          <button className={styles.addCancel} onClick={() => { setShowAdd(null); setNewText(""); }}>✕</button>
+                          <button className={styles.addConfirm} onClick={() => addCard(activeCol.id)}>Ekle</button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.button 
+                      layout
+                      whileHover={{ scale: 0.98, backgroundColor: "rgba(0,0,0,0.02)" }}
+                      whileTap={{ scale: 0.96 }}
+                      className={styles.addBtnGrid} 
+                      onClick={() => setShowAdd(activeCol.id)}
+                    >
+                      <span className={styles.addPlus}>+</span>
+                      Yeni Görev Ekle
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
