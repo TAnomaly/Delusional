@@ -1,0 +1,37 @@
+{
+  "name": "digital-minimalism-platform",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "vite",
+    "dev:backend": "uvicorn src.main:app --reload --port 8000",
+    "build": "vite build",
+    "test": "vitest run && pytest tests/",
+    "test:frontend": "vitest run",
+    "test:backend": "pytest tests/",
+    "lint": "eslint src/components src/pages src/hooks --ext .jsx,.js && prettier --check 'src/**/*.{js,jsx,css}'",
+    "lint:fix": "eslint src/components src/pages src/hooks --ext .jsx,.js --fix && prettier --write 'src/**/*.{js,jsx,css}'",
+    "migrate": "alembic upgrade head",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.10",
+    "vitest": "^1.1.0",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^6.1.5",
+    "jsdom": "^23.0.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.1.1",
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,100 @@
+.navbar {
+  position: relative;
+  z-index: 20;
+  padding: 1.5rem;
+}
+
+.navInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+}
+
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Brand */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--text-primary);
+}
+
+/* Nav Links */
+.navLinks {
+  display: flex;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .navLinks { display: none; }
+}
+
+.navLink {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease-in-out;
+}
+
+.navLink:hover {
+  color: var(--accent-orange);
+}
+
+/* Right Actions */
+.rightActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.textBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: none;
+}
+.textBtn:hover { color: var(--text-primary); }
+
+.glassBtn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--text-primary);
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+.glassBtn:hover { transform: translateY(-1px); background: #000; box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+
+.main {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+}

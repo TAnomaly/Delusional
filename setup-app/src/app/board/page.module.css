@@ -1,0 +1,265 @@
+.page {
+  padding: 3rem 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.header h1 {
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  color: var(--text-primary);
+}
+
+.header h1 span {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.boardStats {
+  display: flex;
+  gap: 1rem;
+}
+
+.boardStat {
+  text-align: right;
+  padding: 0.8rem 1.5rem;
+  border-radius: 9999px;
+}
+
+.statNum {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.statText {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── Board Layout (Liquid Glass Columns) ── */
+.board {
+  flex: 1;
+  display: flex;
+  gap: 2rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.column {
+  flex: 1 0 360px;
+  max-width: 500px;
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+}
+
+.colHeader {
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid var(--border);
+}
+
+.colHeader h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cardCount {
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: var(--accent-orange-light);
+  color: var(--accent-orange);
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.cardList {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.emptyState {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(255,255,255,0.2);
+  border-radius: 16px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* ── Cards (Premium Clean) ── */
+.card {
+  padding: 1.25rem 1.5rem;
+  border-radius: 16px;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.12);
+}
+
+.cardType {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+}
+
+.cardDate {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.iconBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px; /* Softer, technical buttons */
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  opacity: 0; /* Hide by default to look clean */
+  transform: scale(0.9);
+}
+
+.card:hover .iconBtn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.iconBtn:hover {
+  background: var(--text-primary);
+  color: #fff;
+  border-color: var(--text-primary);
+}
+.deleteBtn:hover { color: #fff; background: var(--danger); border-color: var(--danger); }
+
+/* Add Card Button (Subtle, AI-managed vibe) */
+.addBtn {
+  margin: 0 1.5rem 1.5rem 1.5rem;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-muted);
+  padding: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.addBtn:hover {
+  background: rgba(0,0,0,0.02);
+  border-color: rgba(0,0,0,0.15);
+  color: var(--text-primary);
+}
+
+/* Add Form */
+.addForm {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.addForm input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  padding: 12px 16px;
+}
+
+.addActions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.addActions button {
+  flex: 1;
+}
+
+.cancelBtn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+}
+.cancelBtn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
